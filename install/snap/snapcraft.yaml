@@ -1,6 +1,6 @@
 name: fairtris
 title: Fairtris
-version: '3.0.0.4'
+adopt-info: fairtris
 summary: A fair implementation of Classic Tetris® video game.
 description: |
   Fairtris is a video game, a clone of the 32-year-old Tetris® game produced by Nintendo for the Famicom and NES consoles, designed for modern Windows systems. Fairtris is not an emulator — it is a full-fledged game, created from scratch in Free Pascal language (using the Lazarus IDE) and with OpenGL support via the SDL library. Thanks to this combination, it is super-fast and ultra-light.
@@ -59,7 +59,12 @@ parts:
       install -d -m 755 $SNAPCRAFT_PART_INSTALL/usr/share/applications
       install -m 755 ../install/snap/local/fairtris.desktop $SNAPCRAFT_PART_INSTALL/usr/share/applications
       install -d -m 755 $SNAPCRAFT_PART_INSTALL/usr/share/pixmaps
-      install -m 644 ../graphics/application/64.png $SNAPCRAFT_PART_INSTALL/usr/share/pixmaps/fairtris.png      
+      install -m 644 ../graphics/application/64.png $SNAPCRAFT_PART_INSTALL/usr/share/pixmaps/fairtris.png   
+      
+    override-pull: |
+      snapcraftctl pull
+      snapcraftctl set-version "$(git describe --tags | sed 's/^v//' | cut -d "-" -f1)"
+    
     stage:
     - etc
     - usr
