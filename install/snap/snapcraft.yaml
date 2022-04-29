@@ -31,6 +31,7 @@ base: core20
 grade: stable
 icon: graphics/application/64.png
 license: NLPL
+compression: lzo
 
 parts:
   fairtris:
