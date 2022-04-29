@@ -1,0 +1,154 @@
+name: fairtris
+title: Fairtris
+adopt-info: fairtris
+summary: A fair implementation of Classic Tetris® video game.
+description: |
+  Fairtris is a video game, a clone of the 32-year-old Tetris® game produced by Nintendo for the Famicom and NES consoles, designed for modern Windows systems. Fairtris is not an emulator — it is a full-fledged game, created from scratch in Free Pascal language (using the Lazarus IDE) and with OpenGL support via the SDL library. Thanks to this combination, it is super-fast and ultra-light.
+  
+  This project was initially created as a tool to test various RNG algorithms, but after some time it turned into a complete and rich video game that provides lots of fun. However, since Tetris® is a proprietary brand to which The Tetris Company is entitled, Fairtris is not a product — it is a knowledge base for those who would like to know more about the internal mechanisms of the classic version of this game.
+  
+  **Important features**
+  * implementation of gameplay mechanics compatible with the Nintendo Tetris® game,
+  * DAS mechanics fixed and spin buffering added, making the controls fabulously responsive,
+  * extended mechanics with basic wall kick, hard-drop and multi-spawn soft-drop,
+  * support for EIGHT regional versions of the game, including original NTSC and PAL versions,
+  * support for as many as SEVEN random piece generators, including the classic RNG,
+  * support for free marathon and speedrun modes, qualifications and matches with same piece set,
+  * the ability to start the game from any level up to the killscreen,
+  * the ability to play on a keyboard or any USB controller (with input mapping support),
+  * supports window mode and exclusive video mode,
+  * support for additional meters, such as TRT, BRN, as well as gain popup,
+  * stores the best results for each game region and RNG type,
+  * has a pause menu with the ability to quickly restart the game and change settings,
+  * shows the game summary screen after each game,
+  * support for two themes (minimalistic dark and classic skin),
+  * possibility to use it with NestrisChamps and MaxoutClub,
+  * it's light and very fast — should run smoothly even on a heavily loaded PC,
+  * it is fully portable, no installation required,
+  * and many more!
+confinement: strict
+base: core20
+grade: stable
+icon: graphics/application/64.png
+license: NLPL
+compression: lzo
+
+parts:
+  fairtris:
+    plugin: nil
+    source: .
+    source-type: local
+    build-packages: 
+    - fpc
+    - lazarus
+    - lcl
+    - lcl-utils
+    - libsdl2-dev
+    - libsdl2-mixer-dev
+    - libsdl2-image-dev
+    override-build: |
+      snapcraftctl build
+      cd source
+      lazbuild --build-mode=Release Fairtris.Main.lpi
+      install -d -m 755 $SNAPCRAFT_PART_INSTALL/usr/bin
+      install -s -m 755 ../bin/fairtris $SNAPCRAFT_PART_INSTALL/usr/bin/fairtris
+      install -d -m 755 $SNAPCRAFT_PART_INSTALL/usr/share/fairtris      
+      cp -r ../bin/grounds $SNAPCRAFT_PART_INSTALL/usr/share/fairtris
+      cp -r ../bin/sprites $SNAPCRAFT_PART_INSTALL/usr/share/fairtris
+      cp -r ../bin/sounds $SNAPCRAFT_PART_INSTALL/usr/share/fairtris
+      install -d -m 755 $SNAPCRAFT_PART_INSTALL/usr/share/applications
+      install -m 755 ../install/snap/local/fairtris.desktop $SNAPCRAFT_PART_INSTALL/usr/share/applications
+      install -d -m 755 $SNAPCRAFT_PART_INSTALL/usr/share/pixmaps
+      install -m 644 ../graphics/application/64.png $SNAPCRAFT_PART_INSTALL/usr/share/pixmaps/fairtris.png   
+      
+    override-pull: |
+      snapcraftctl pull
+      snapcraftctl set-version "$(git describe --tags | sed 's/^v//' | cut -d "-" -f1)"
+    
+    stage:
+    - etc
+    - usr
+    - usr/bin
+    - usr/share/fairtris
+    - usr/share/applications/fairtris.desktop
+    - usr/share/pixmaps
+    stage-packages:
+    - libatk1.0-0
+    - libcairo2
+    - libdatrie1
+    - libfontconfig1
+    - libfreetype6
+    - libfribidi0
+    - libgdk-pixbuf2.0-0
+    - libgraphite2-3
+    - libgtk2.0-0
+    - libharfbuzz0b
+    - libpango-1.0-0
+    - libpangocairo-1.0-0
+    - libpangoft2-1.0-0
+    - libpixman-1-0
+    - libpng16-16
+    - libthai0
+    - libx11-6
+    - libxau6
+    - libxcb-render0
+    - libxcb-shm0
+    - libxcb1
+    - libxcomposite1
+    - libxcursor1
+    - libxdamage1
+    - libxdmcp6
+    - libxext6
+    - libxfixes3
+    - libxi6
+    - libxinerama1
+    - libxrandr2
+    - libxrender1
+    - libasound2
+    - libasyncns0
+    - libflac8
+    - libfluidsynth2
+    - libinstpatch-1.0-2
+    - libjack-jackd2-0
+    - libmodplug1
+    - libmpg123-0
+    - libogg0
+    - libopus0
+    - libopusfile0
+    - libpulse0
+    - libsdl2-2.0-0
+    - libsdl2-image-2.0-0
+    - libsdl2-mixer-2.0-0
+    - libsndfile1
+    - libvorbis0a
+    - libvorbisenc2
+    - libvorbisfile3
+    - libwayland-client0
+    - libwayland-cursor0
+    - libwayland-egl1
+    - libxkbcommon0
+    - libxss1
+    - libxxf86vm1
+    - libglu1-mesa
+    - libgl1-mesa-dri
+  
+apps:
+  fairtris:
+    command: usr/bin/fairtris
+    desktop: usr/share/applications/fairtris.desktop    
+    plugs:
+    - desktop
+    - x11
+    - home
+    - audio-playback
+    - opengl
+    - joystick
+
+environment:
+  LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pulseaudio:$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
+  LIBGL_DRIVERS_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
+  PULSE_SERVER: unix:/run/user/1000/pulse/native
+  
+layout:
+  /usr/share/fairtris:
+    bind: $SNAP/usr/share/fairtris
